@@ -1,0 +1,43 @@
+/* styles.css */
+
+/* Style dla przycisku "Add" */
+QPushButton.add_button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+    margin: 5px;
+}
+
+QPushButton.add_button:hover {
+    background-color: #45a049;
+}
+
+/* Style dla przycisku "Delete" */
+QPushButton.delete_button {
+    background-color: #fc4141;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+    margin: 5px;
+}
+
+QPushButton.delete_button:hover {
+    background-color: #ca3737;
+}
+
+/* Style dla QLineEdit */
+QLineEdit {
+    font-size: 16px;
+    padding: 10px;
+}
+
+/* Style dla QListWidget */
+QListWidget {
+    font-size: 16px;
+    padding: 10px;
+}

@@ -1,71 +1,85 @@
-import tkinter as tk
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QListWidget, QVBoxLayout, QWidget
+from PyQt5.QtCore import QFile
 from datetime import datetime
 
-class App(tk.Tk):
+class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.title("App")
-        self.geometry('1000x1000')
+        self.setWindowTitle("App")
+        self.setGeometry(100, 100, 1000, 1000)
         
-        self.add = tk.Entry(self, width=300)
-        self.add.pack()
+        self.central_widget = QWidget(self)
+        self.setCentralWidget(self.central_widget)
 
-        self.add_button = tk.Button(self, text="Add note", command = self.add_note)
-        self.add_button.pack()
+        self.layout = QVBoxLayout()
 
-        self.delete_button = tk.Button(self, text="Delete", command=self.delete_notes)
-        self.delete_button.pack()
+        self.add = QLineEdit(self)
+        self.add.setFixedWidth(300)
+        self.layout.addWidget(self.add)
 
+        self.add_button = QPushButton("Add note", self)
+        self.add_button.setObjectName("add_button")
+        self.add_button.clicked.connect(self.add_note)
+        self.add_button.setProperty("class", "add_button")
+        self.layout.addWidget(self.add_button)
 
-        self.list_of_notes = tk.Listbox(self)
-        self.list_of_notes.pack(fill=tk.BOTH, expand=True)
+        self.delete_button = QPushButton("Delete", self)
+        self.delete_button.setObjectName("delete_button")
+        self.delete_button.clicked.connect(self.delete_notes)
+        self.delete_button.setProperty("class", "delete_button")    
+        self.layout.addWidget(self.delete_button)
+
+        self.list_of_notes = QListWidget(self)
+        self.layout.addWidget(self.list_of_notes)
+
+        self.central_widget.setLayout(self.layout)
 
         self.read_from_file()
-        
-        self.protocol("WM_DELETE_WINDOW", self.close_app)
+
+        style_file = QFile("styles.css")
+        style_file.open(QFile.ReadOnly | QFile.Text)
+        stylesheet = style_file.readAll().data().decode("utf-8")
+        self.setStyleSheet(stylesheet)
 
     def add_note(self):
-        new_note = self.add.get()
+        new_note = self.add.text()
         if new_note:
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-            note_with_date = f"{current_time} - {new_note}"
-            self.list_of_notes.insert(tk.END, note_with_date)
-            self.save_to_file(note_with_date)
-            self.add.delete(0, tk.END)
-
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            note_with_date = f"{new_note} - {current_time}"
+            self.list_of_notes.addItem(note_with_date)  # Dodajemy notatkę jako nowy element do listy
+            self.save_to_file(note_with_date + "\n")  # Zapisujemy notatkę z nową linią
 
     def save_to_file(self, element):
-        with open("notes.txt", "w") as file:
-            file.write(element + "\n")
+        with open("notes.txt", "a") as file:
+            file.write(element)
     
     def read_from_file(self):
         try:
             with open("notes.txt", "r") as file:
                 for line in file:
                     element = line.strip()
-                    self.list_of_notes.insert(tk.END, element)
+                    self.list_of_notes.addItem(element)
         except FileNotFoundError:
             pass
         
     def delete_notes(self):
-        index = self.list_of_notes.curselection()
-        if index:
-            index = int(index[0])
-            element = self.list_of_notes.get(index)
-            self.list_of_notes.delete(index)
-            self.delete_from_file(element)
+        selected_items = self.list_of_notes.selectedItems()
+        for item in selected_items:
+            self.list_of_notes.takeItem(self.list_of_notes.row(item))
+            self.delete_from_file(item.text() + "\n")
 
     def delete_from_file(self, element):
-
-        with open("notes.txt", "w") as file:
-            lines = file.readlines()
+        with open("notes.txt", "r+") as file:
+            lines = file.readlines() 
+            file.seek(0) # Ustawiamy kursor na początku pliku
             for line in lines:
-                if line.strip() != element:
+                if line.strip() != element.strip(): # Jeśli linia nie jest taka sama jak element, to ją zapisujemy
                     file.write(line)
+            file.truncate() # Usuwamy wszystkie linie po ostatniej zapisanej
 
-    def close_app(self):
-        self.save_to_file("")
-        self.destroy()
-
-runApp = App()
-runApp.mainloop()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = App()
+    window.show()
+    sys.exit(app.exec_())
