@@ -15,9 +15,23 @@ QPushButton.add_button:hover {
     background-color: #45a049;
 }
 
+QPushButton.add_important_button {
+    background-color: #afa84c;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+    margin: 5px;
+}
+
+QPushButton.add_important_button:hover {
+    background-color: #a08f45;
+}
+
 /* Style dla przycisku "Delete" */
 QPushButton.delete_button {
-    background-color: #fc4141;
+    background-color: #555555;
     color: white;
     border: none;
     padding: 10px;
@@ -27,6 +41,20 @@ QPushButton.delete_button {
 }
 
 QPushButton.delete_button:hover {
+    background-color: #383838;
+}
+
+QPushButton.delete_all_button {
+    background-color: #fc4141;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+    margin: 5px;
+}
+
+QPushButton.delete_all_button:hover {
     background-color: #ca3737;
 }
 
@@ -38,6 +66,29 @@ QLineEdit {
 
 /* Style dla QListWidget */
 QListWidget {
-    font-size: 16px;
+    font-size: 15px;
     padding: 10px;
+}
+
+/* Styl dla tekstu notatki */
+QListWidget::item QLabel#text {
+    font-size: 15px;
+    text-align: left;
+}
+
+/* Styl dla daty notatki */
+QListWidget::item QLabel#date {
+    font-size: 15px;
+    text-align: right; /* Wyrównanie do prawej strony */
+}
+
+/* Styl dla zaznaczonego elementu listy */
+QListWidget::item:selected {
+    background-color: #e0e0e0;
+}
+
+QInputDialog {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
 }
