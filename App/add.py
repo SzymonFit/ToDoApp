@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QInputDialog
 import sys
-from app import App
+from main import App
 
 class CustomInputDialog(QInputDialog):
     def __init__(self, parent=App):
