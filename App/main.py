@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QListWidget, QVBoxLayout, QWidget, QLabel, QListWidgetItem, QHBoxLayout, QInputDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QListWidget, QVBoxLayout, QWidget, QLabel, QListWidgetItem, QHBoxLayout, QInputDialog, QMessageBox
 from PyQt5.QtCore import QFile, Qt
 from datetime import datetime
 import os
@@ -26,6 +26,7 @@ class App(QMainWindow):
 
         self.add_important_button = QPushButton("Add important note", self)
         self.add_important_button.setObjectName("add_important_button")
+        self.add_important_button.clicked.connect(self.add_important_note) 
         self.add_important_button.setProperty("class", "add_important_button")
         add_buttons_layout.addWidget(self.add_important_button)             
 
@@ -87,15 +88,47 @@ class App(QMainWindow):
             self.list_of_notes.setItemWidget(note_item, note_widget)  # Przypisujemy widget do elementu
 
             note_with_date = f"{new_note}---{current_time}\n"
-            self.save_to_file(note_with_date)
+            self.save_to_file(note_with_date, important=False)
 
-    def add_important_note():
-        pass
+    def add_important_note(self):
+        new_note, is_clicked = QInputDialog.getText(self, 'Note Input', 'Enter your note:')
+        if new_note and is_clicked:
+            current_time = datetime.now().strftime("%d.%m.%Y")
 
-    def save_to_file(self, element):
-        with open(self.file_path, "a") as file:
-            file.write(element)
+            note_item = QListWidgetItem()  # Tworzymy nowy element listy
+            note_widget = QWidget()  # Tworzymy widget dla elementu listy
+            layout = QHBoxLayout()  # Tworzymy układ poziomy
+            
 
+            text_label = QLabel(f"IMPORTANT --> {new_note}")  # Tworzymy etykietę z tekstem notatki
+            text_label.setObjectName("text")
+            layout.addWidget(text_label)  # Dodajemy etykietę do układu
+
+            date_label = QLabel(current_time)  # Tworzymy etykietę  z datą
+            date_label.setObjectName("date")
+            layout.addWidget(date_label)  # Dodajemy etykietę do układu
+
+            date_label.setAlignment(Qt.AlignRight)  # Wyrównujemy etykietę do prawej
+
+            note_widget.setLayout(layout)  # Ustawiamy układ widgetu
+            note_item.setSizeHint(note_widget.sizeHint())  # Ustawiamy wysokość elementu listy na podstawie widgetu (wysokość widgetu 
+            self.list_of_notes.insertItem(0, note_item) # Dodajemy element do listy
+            self.list_of_notes.setItemWidget(note_item, note_widget)  # Przypisujemy widget do elementu
+
+            note_with_date = f"IMPORTANT --> {new_note}---{current_time}\n" 
+            self.save_to_file(note_with_date, important=True)
+            note_widget.setProperty("class", "important_note_widget")
+
+    def save_to_file(self, element, important=False):
+        with open(self.file_path, "r+") as file:
+            old_content = file.read()
+            if important:
+                new_content = element + old_content
+            else:
+                new_content = old_content + element
+            file.seek(0)
+            file.write(new_content)
+            file.truncate()
 
     def read_from_file(self):
         try:
@@ -128,12 +161,28 @@ class App(QMainWindow):
 
         except FileNotFoundError:
             pass
-        
+
     def delete_notes(self):
-        selected_items = self.list_of_notes.selectedItems()
-        for item in selected_items:
-            self.list_of_notes.takeItem(self.list_of_notes.row(item)) # Usuwamy element z listy
-            self.delete_from_file(item.text() + "\n") #
+        delete_confirmation = QMessageBox.question(
+        self,
+        'Delete note',
+        'Are you sure you want to delete this note?'
+        )
+        if delete_confirmation == QMessageBox.Yes:
+            selected_items = self.list_of_notes.selectedItems()    
+
+            for item in selected_items:
+                note_widget = self.list_of_notes.itemWidget(item)
+                text_label = note_widget.findChild(QLabel, "text")
+                date_label = note_widget.findChild(QLabel, "date")
+                
+                if text_label and date_label:
+                    note_text = text_label.text() 
+                    note_date = date_label.text()
+                    
+                    note_with_date = f"{note_text}---{note_date}\n"
+                    self.list_of_notes.takeItem(self.list_of_notes.row(item))  # Usuwamy element z listy
+                    self.delete_from_file(note_with_date)
 
     def delete_from_file(self, element):
         with open(self.file_path, "r+") as file:
@@ -145,20 +194,15 @@ class App(QMainWindow):
             file.truncate() # Usuwamy wszystkie linie po ostatniej zapisanej
 
     def delete_all_notes_from_file(self):
-        self.list_of_notes.clear()
-        with open(self.file_path, "w") as file:
-            file.write("")
-
-"""Do zrobienia:
-- dodawanie ważnych notatek + sortowanie ich na poczatku
-- usuwanie wszystkich notatek procz waznych
-- wczytywanie z pliku notatek waznych i zwyklych tak zeby data byla do prawej tresc do lewej, split()  ~~~ done
-- dodanie daty do notatki np lekarz za 4 dni  
-- dodanie przypomnienia o notatce?
-- usuwanie automatyczne notatek gdy data jest starsza 2 dni niz zapisano notatke
-- css :)
-- i moze testy jednostkowe jak sie uda :D
-"""
+        delete_confirmation = QMessageBox.question(
+            self,
+            'Delete all notes',
+            'Are you sure you want to delete all notes?',
+        )
+        if delete_confirmation == QMessageBox.Yes:
+            self.list_of_notes.clear()
+            with open(self.file_path, "w") as file:
+                file.write("")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

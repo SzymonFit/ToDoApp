@@ -70,7 +70,7 @@ QListWidget {
     padding: 10px;
 }
 
-/* Styl dla tekstu notatki */
+/* Styl dla tekstu notatki */ 
 QListWidget::item QLabel#text {
     font-size: 15px;
     text-align: left;
