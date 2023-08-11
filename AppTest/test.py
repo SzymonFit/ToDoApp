@@ -21,7 +21,6 @@ class TestApp(unittest.TestCase):
 
     def tearDown(self):
         self.window.close()
-
     def test_add_note(self):
         note_count_before = self.window.list_of_notes.count()
 
@@ -34,6 +33,7 @@ class TestApp(unittest.TestCase):
         note_count_before = self.window.list_of_notes.count()
 
         self.window.add_important_note()
+        
 
         note_count_after = self.window.list_of_notes.count()
         self.assertEqual(note_count_after, note_count_before + 1)

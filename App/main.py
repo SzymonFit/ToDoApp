@@ -9,11 +9,11 @@ class App(QMainWindow):
         super().__init__() 
         
         self.setWindowTitle("App")
-        self.setGeometry(100, 100, 1000, 1000)
+        self.setGeometry(100, 100, 500, 500)
 
         
         self.central_widget = QWidget(self) # Tworzymy widget, który będzie centralnym elementem okna
-        self.setCentralWidget(self.central_widget) 
+        self.setCentralWidget(self.central_widget)  
 
         self.layout = QVBoxLayout()
 

@@ -1,7 +1,7 @@
 # ToDoApp
 
 ## Technologies used
-Python, PyQt
+Python, PyQt, unittest, css
 
 ## About project
 
